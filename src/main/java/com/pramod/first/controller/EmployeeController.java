@@ -1,8 +1,11 @@
 package com.pramod.first.controller;
 
 import com.pramod.first.Exception.ResourceNotFoundException;
+import com.pramod.first.FirstApplication;
 import com.pramod.first.model.Employee;
 import com.pramod.first.repository.EmployeeRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,29 +24,35 @@ import java.util.List;
 @RequestMapping("/api/v1")
 public class EmployeeController {
 
+    private static final Logger logger = LoggerFactory.getLogger(FirstApplication.class);
+
     @Autowired
     private EmployeeRepository repository;
 
     @GetMapping("/employees")
     public List<Employee> getAllEmployees() {
+        logger.info("Get all the employees...");
         return repository.findAll();
-    }
-
-    @PostMapping("/employees")
-    public Employee createEmployee(@Valid @RequestBody Employee employee) {
-        return repository.save(employee);
     }
 
     @GetMapping("/employees/{id}")
     public ResponseEntity<Employee> getEmployeeById(@PathVariable(value = "id") long employeeId) throws ResourceNotFoundException {
+        logger.info("Get employee by id...");
         Employee employee = repository.findById(employeeId).
                 orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id:: " + employeeId));
         return ResponseEntity.ok().body(employee);
 
     }
 
+    @PostMapping("/employees")
+    public Employee createEmployee(@Valid @RequestBody Employee employee) {
+        logger.info("Insert employee...");
+        return repository.save(employee);
+    }
+
     @PutMapping("/employees/{id}")
     public ResponseEntity<Employee> EmployeeById(@PathVariable(value = "id") long employeeId, @RequestBody Employee updatedEmployee) throws ResourceNotFoundException {
+        logger.info("Update employee...");
         Employee employee = repository.findById(employeeId).
                 orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id:: " + employeeId));
         employee.setName(updatedEmployee.getName());
@@ -55,6 +64,7 @@ public class EmployeeController {
 
     @DeleteMapping("/employees/{id}")
     public void deleteEmployee(@PathVariable(value = "id") long employeeId) throws ResourceNotFoundException {
+        logger.info("Delete employee...");
         Employee employee = repository.findById(employeeId).
                 orElseThrow(() -> new ResourceNotFoundException("Employee not found for this id:: " + employeeId));
         repository.delete(employee);
